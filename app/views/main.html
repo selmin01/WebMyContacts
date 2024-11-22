@@ -1,0 +1,24 @@
+<div>
+    <button class="btn btn-primary" ng-click="mainCtrl.carregarDados()">Recarregar Dados</button>
+    <br>
+    <div class="alert alert-danger" ng-if="mainCtrl.mensagemErro">
+        {{ mainCtrl.mensagemErro }}
+    </div>
+
+    <table class="table table-bordered table-striped" ng-if="mainCtrl.dados.length > 0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in mainCtrl.dados">
+                <td>{{ item.id }}</td>
+                <td>{{ item.nome }}</td>
+                <td>{{ item.descricao }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

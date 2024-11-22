@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="meuApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Aplicação</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container" ng-controller="MainController as mainCtrl">
+        <h1>Bem-vindo à Minha Aplicação UAU!!</h1>
+        <div ng-include="'app/views/main.html'"></div>
+    </div>
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script src="app/app.module.js"></script>
+    <script src="app/controllers/main.controller.js"></script>
+    <script src="app/services/api.service.js"></script>
+
+    <div class="container">
+        <h1 class="text-center">Teste Bootstrap</h1>
+        <button class="btn btn-success">Clique Aqui</button>
+      </div>
+      
+</body>
+</html>
