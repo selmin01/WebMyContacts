@@ -1,24 +1,71 @@
 <div>
-    <button class="btn btn-primary" ng-click="mainCtrl.carregarDados()">Recarregar Dados</button>
+    <button class="btn btn-primary" ng-click="mainCtrl.loadData()">Recarregar Dados</button>
     <br>
     <div class="alert alert-danger" ng-if="mainCtrl.mensagemErro">
         {{ mainCtrl.mensagemErro }}
     </div>
 
-    <table class="table table-bordered table-striped" ng-if="mainCtrl.dados.length > 0">
-        <thead>
+    <div ng-controller="MainController as main" class="container mt-5">
+        <h3 class="mb-4"><i class="fas fa-users"></i> Pessoas</h3>
+        <!-- Barra de ações -->
+        <div class="d-flex justify-content-between mb-3">
+            <button class="btn btn-secondary" ng-click="main.filter()">
+                <i class="fas fa-filter"></i> Filtrar
+            </button>
+            <button class="btn btn-danger" ng-click="main.newPerson()">
+                <i class="fas fa-plus"></i> Nova pessoa
+            </button>
+        </div>
+        <br>
+
+        <table class="table table-bordered table-striped" ng-if="mainCtrl.people.length > 0">
+            <thead class="thead-light">
             <tr>
                 <th>ID</th>
                 <th>Nome</th>
-                <th>Descrição</th>
+                <th>Contatos</th>
+                <th class="text-center">Ações</th>
             </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="item in mainCtrl.dados">
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in mainCtrl.people">
                 <td>{{ item.id }}</td>
-                <td>{{ item.nome }}</td>
-                <td>{{ item.descricao }}</td>
+                <td>
+                {{ item.name }}
+                <span class="badge badge-primary">{{ pessoa.tipo }}</span>
+                </td>
+                <td>
+                <a href="#" ng-click="main.openContacts(pessoa.id)">
+                    {{ pessoa.contatos.length }} contatos
+                </a>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-link" ng-click="main.viewPerson(pessoa.id)">
+                        <i class="fas fa-eye">X</i>
+                    </button>
+                    <button class="btn btn-link" ng-click="main.editPerson(pessoa.id)">
+                        <i class="fas fa-edit">Y</i>
+                    </button>
+                    <button class="btn btn-link text-danger" ng-click="main.deletePerson(pessoa.id)">
+                        <i class="fas fa-trash">Z</i>
+                    </button>
+                </td>
             </tr>
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+        
+        <!-- Paginação -->
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Página: {{ main.currentPage }}</span>
+            <div class="b-4">
+                Linhas por página:
+                <select ng-model="main.linesByPage" ng-change="main.updateRowsPage()" class="custom-select w-auto">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+                <span>{{ main.currentPage }} de {{ Math.ceil(main.totalPeople / main.linesByPage) }}</span>
+            </div>
+        </div>
+    </div>
 </div>

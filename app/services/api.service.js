@@ -7,6 +7,7 @@ angular.module('meuApp')
         // };
 
         var apiBaseUrl = 'http://localhost:8000/api/person';
+                    //   http://localhost:8000/api/person
 
         // Função para buscar todas as pessoas
         this.getAllPersons = function() {
@@ -27,6 +28,3 @@ angular.module('meuApp')
 
     }]);
 
-    // .service('PersonService', ['$http', function($http) {
-        
-    // }]);
