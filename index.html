@@ -4,24 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Aplicação</title>
+    
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+
 </head>
-<body>
-    <div class="container" ng-controller="MainController as mainCtrl">
-        <h1>Bem-vindo à Minha Aplicação</h1>
-        <div ng-include="'app/views/main.html'"></div>
-    </div>
+<body class="bg-light">
+    <!-- Header -->
+    <header class="bg-primary text-white py-3 shadow">
+        <div class="container">
+            <h1 class="text-center"><i class="fas fa-cogs"></i> Minha Aplicação</h1>
+            <p class="text-center mb-0">Gerencie suas informações de forma eficiente e intuitiva</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mt-5">
+        <!-- Bem-vindo -->
+        <div class="text-center mb-4">
+            <h2 class="text-secondary"><i class="fas fa-home"></i> Bem-vindo!</h2>
+            <p class="text-muted">Explore os recursos disponíveis na aplicação.</p>
+        </div>
+
+        <!-- AngularJS Conteúdo -->
+        <div ng-controller="MainController as mainCtrl">
+            <div ng-include="'app/views/main.html'" class="rounded shadow-sm p-4 bg-white"></div>
+        </div>
+    </main>
+
+    <!-- Teste Bootstrap Section -->
+    <section class="container mt-5">
+        <div class="p-4 bg-white shadow rounded">
+            <h2 class="text-center text-info"><i class="fas fa-laptop-code"></i> Teste Bootstrap</h2>
+            <p class="text-center">Confira como os botões e outros componentes do Bootstrap funcionam:</p>
+            <div class="text-center">
+                <button class="btn btn-success btn-lg shadow-sm">
+                    <i class="fas fa-play-circle"></i> Clique Aqui
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2024 Minha Aplicação. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
     <script src="node_modules/angular/angular.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="app/app.module.js"></script>
+    <script src="app/controllers/new-contact-modal.controller.js"></script>
     <script src="app/controllers/main.controller.js"></script>
     <script src="app/services/api.service.js"></script>
-
-    <hr>
-    <div class="container">
-        <h1 class="text-center">Teste Bootstrap</h1>
-        <button class="btn btn-success">Clique Aqui</button>
-    </div>
-    <hr>
-  
 </body>
 </html>

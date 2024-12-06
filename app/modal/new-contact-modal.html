@@ -1,0 +1,44 @@
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-controller="NewContactModalController as modalCtrl">
+            <div class="modal-header">
+                <h5 class="modal-title d-flex align-items-center" id="exampleModalLabel">
+                    <i class="bi bi-person-fill me-2"></i> Nova pessoa
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">Dados pessoais</a>
+                        </li>
+                    </ul>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label for="name" class="form-label text-danger">Nome:</label>
+                                <input type="text" id="name" class="form-control" placeholder="Digite o nome" ng-model="modalCtrl.formData.name">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="type" class="form-label">Tipo:</label>
+                                <select id="type" class="form-select" ng-model="modalCtrl.formData.type">
+                                    <option value="1">Física</option>
+                                    <option value="2">Jurídica</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" ng-click="modalCtrl.cancel()">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" ng-click="modalCtrl.saveData()">
+                    <i class="bi bi-check-circle"></i> Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

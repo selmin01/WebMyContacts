@@ -1,71 +1,113 @@
-<div>
-    <button class="btn btn-primary" ng-click="mainCtrl.loadData()">Recarregar Dados</button>
-    <br>
+<div class="container mt-2">
+    <!-- Botão Recarregar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0 text-primary"><i class="fas fa-users"></i> Gestão de Contatos</h3>
+        <button class="btn btn-primary" ng-click="mainCtrl.loadData()">
+            <i class="fas fa-sync-alt"></i> Recarregar Dados
+        </button>
+    </div>
+
+    <!-- Mensagem de erro -->
     <div class="alert alert-danger" ng-if="mainCtrl.mensagemErro">
         {{ mainCtrl.mensagemErro }}
     </div>
 
-    <div ng-controller="MainController as main" class="container mt-5">
-        <h3 class="mb-4"><i class="fas fa-users"></i> Pessoas</h3>
-        <!-- Barra de ações -->
-        <div class="d-flex justify-content-between mb-3">
-            <button class="btn btn-secondary" ng-click="main.filter()">
-                <i class="fas fa-filter"></i> Filtrar
-            </button>
-            <button class="btn btn-danger" ng-click="main.newPerson()">
-                <i class="fas fa-plus"></i> Nova pessoa
+    <!-- Barra de ações -->
+    <div class="row mb-3">
+        <div class="col-12 col-md-6">
+            <button class="btn btn-secondary w-100 mb-2" ng-click="mainCtrl.filter()">
+                <i class="fas fa-filter"></i> Aplicar Filtro
             </button>
         </div>
-        <br>
-
-        <table class="table table-bordered table-striped" ng-if="mainCtrl.people.length > 0">
-            <thead class="thead-light">
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Contatos</th>
-                <th class="text-center">Ações</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="item in mainCtrl.people">
-                <td>{{ item.id }}</td>
-                <td>
-                {{ item.name }}
-                <span class="badge badge-primary">{{ pessoa.tipo }}</span>
-                </td>
-                <td>
-                <a href="#" ng-click="main.openContacts(pessoa.id)">
-                    {{ pessoa.contatos.length }} contatos
-                </a>
-                </td>
-                <td class="text-center">
-                    <button class="btn btn-link" ng-click="main.viewPerson(pessoa.id)">
-                        <i class="fas fa-eye">X</i>
-                    </button>
-                    <button class="btn btn-link" ng-click="main.editPerson(pessoa.id)">
-                        <i class="fas fa-edit">Y</i>
-                    </button>
-                    <button class="btn btn-link text-danger" ng-click="main.deletePerson(pessoa.id)">
-                        <i class="fas fa-trash">Z</i>
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        
-        <!-- Paginação -->
-        <div class="d-flex justify-content-between align-items-center">
-            <span>Página: {{ main.currentPage }}</span>
-            <div class="b-4">
-                Linhas por página:
-                <select ng-model="main.linesByPage" ng-change="main.updateRowsPage()" class="custom-select w-auto">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                </select>
-                <span>{{ main.currentPage }} de {{ Math.ceil(main.totalPeople / main.linesByPage) }}</span>
-            </div>
+        <div class="col-12 col-md-6">
+            <button class="btn btn-danger w-100" ng-click="mainCtrl.openNewPersonModal()">
+                <i class="fas fa-plus"></i> Nova Pessoa
+            </button>
         </div>
     </div>
+
+    <!-- Tabela de Pessoas -->
+    <div class="table-responsive" ng-if="mainCtrl.people.length > 0">
+        <table class="table table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Contatos</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in mainCtrl.peoplePaginated">
+                    <td>{{ item.id }}</td>
+                    <td>
+                        {{ item.name }}
+                        <span class="badge bg-primary ms-2">{{ pessoa.tipo }}</span>
+                    </td>
+                    <td>
+                        <a href="#" ng-click="mainCtrl.openContacts(pessoa.id)" class="text-decoration-none">
+                            {{ pessoa.contatos.length }} contatos
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary" ng-click="mainCtrl.viewPerson(item.id)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" ng-click="mainCtrl.editPerson(item.id)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" ng-click="mainCtrl.deletePerson(item.id)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Alert -->
+    <div class="container mt-3">
+        <div ng-repeat="alert in mainCtrl.alerts" class="alert alert-{{alert.type}} alert-dismissible fade show" role="alert">
+            {{ alert.message }}
+            <button type="button" class="btn-close" ng-click="mainCtrl.closeAlert($index)" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Mensagem quando não há dados -->
+    <div class="alert alert-info text-center" ng-if="mainCtrl.people.length === 0">
+        <i class="fas fa-info-circle"></i> Nenhuma pessoa cadastrada. Clique em "Nova Pessoa" para adicionar.
+    </div>
+
+    <!-- Paginação -->
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            Página: <strong>{{ mainCtrl.currentPage }}</strong>
+        </div>
+        <div>
+            <label for="linesPerPage" class="form-label me-2">Linhas por página:</label>
+            <select id="linesPerPage" ng-model="mainCtrl.linesByPage" ng-change="mainCtrl.updateRowsPage()" class="form-select d-inline w-auto">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+            </select>
+            <!-- <span>de {{ Math.ceil(mainCtrl.totalPeople / mainCtrl.linesByPage) }}</span> -->
+            <span>
+                 Mostrando {{ mainCtrl.startRow }}–{{ mainCtrl.endRow }} de {{ mainCtrl.totalPeople }} registros
+            </span>
+        </div>
+            <div>
+                <button class="btn btn-outline-secondary" 
+                        ng-click="mainCtrl.goToPage(mainCtrl.currentPage - 1)" 
+                        ng-disabled="mainCtrl.currentPage === 1">
+                    Anterior
+                </button>
+                <button class="btn btn-outline-secondary" 
+                        ng-click="mainCtrl.goToPage(mainCtrl.currentPage + 1)" 
+                        ng-disabled="mainCtrl.currentPage === mainCtrl.totalPages">
+                    Próxima
+                </button>
+            </div>
+    </div>
+    
+    <!-- Modal -->
+    <div ng-include="'app/modal/new-contact-modal.html'"></div>
 </div>
