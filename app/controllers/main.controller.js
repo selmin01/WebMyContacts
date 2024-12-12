@@ -1,5 +1,5 @@
 angular.module('meuApp')
-    .controller('MainController', ['$scope', 'ApiService', function ($scope, ApiService) {
+    .controller('MainController', ['$scope', '$rootScope', 'ApiService', function ($scope, $rootScope, ApiService) {
         var vm = this;
 
         // Dados iniciais
@@ -14,12 +14,28 @@ angular.module('meuApp')
         // Função para abrir o modal
         vm.openNewPersonModal = function () {
             console.log('Abrindo modal...');
-            var modalElement = document.getElementById('exampleModal');
+            var modalElement = document.getElementById('NewContactModal');
             if (modalElement) {
                 var myModal = new bootstrap.Modal(modalElement, {}); // Inicialize o modal sem opções extras
                 myModal.show(); // Mostre o modal
             } else {
                 console.error('Elemento modal não encontrado no DOM');
+            }
+        };
+
+        // Função para abrir o modal de edição
+        vm.openEditPersonModal = function (id) {
+            console.log('Abrindo modal de edição para ID:', id);
+            // Emite o evento no $rootScope
+            $rootScope.$emit('editPersonEvent', id);
+
+            // Abre o modal
+            var modalElement = document.getElementById('editModal');
+            if (modalElement) {
+                var myModal = new bootstrap.Modal(modalElement, {});
+                myModal.show();
+            } else {
+                console.error('Modal de edição não encontrado no DOM');
             }
         };
 
@@ -40,7 +56,6 @@ angular.module('meuApp')
                     vm.people = data; // Atualiza os dados na view
                     vm.totalPeople = data.length; // Total de registros para paginação
                     vm.getPeoplePaginated();
-                    // vm.updateRowRange();
                 })
                 .catch(function(error) {
                     vm.errorMessage = error.message || 'Erro ao carregar os dados.';
@@ -50,6 +65,17 @@ angular.module('meuApp')
         // Ouve o evento de atualização de dados
         $scope.$on('dataUpdated', function () {
             console.log('Evento recebido: dataUpdated');
+            vm.loadData(); // Recarrega os dados
+        });
+        // Escuta o evento indicando que os dados foram atualizados
+        $rootScope.$on('dataCreateEvent', function () {
+            console.log('Evento recebido: dados atualizados');
+            vm.addAlert('success', 'Pessoa adicionada com sucesso!');
+            vm.loadData(); // Recarrega os dados
+        });
+        $rootScope.$on('dataUpdatedEvent', function () {
+            console.log('Evento recebido: dados atualizados');
+            vm.addAlert('success', 'Edição concluída com sucesso!');
             vm.loadData(); // Recarrega os dados
         });
 
@@ -82,33 +108,11 @@ angular.module('meuApp')
             }
         };
 
-        // Ações de exemplo
-        vm.filter = function() {
-            alert("Filtro aplicado!");
-        };
-
-        vm.newPerson = function() {
-            alert("Nova pessoa adicionada!");
-        };
-
-        vm.openContacts = function(id) {
-            alert("Abrindo contatos da pessoa com ID: " + id);
-        };
-
-        vm.viewPerson = function(id) {
-            alert("Visualizando pessoa com ID: " + id);
-        };
-
-        vm.editPerson = function(id) {
-            alert("Editando pessoa com ID: " + id);
-        };
-
         // Função para excluir uma pessoa
         vm.deletePerson = function (id) {
             if (confirm('Tem certeza que deseja excluir esta pessoa?')) {
                 ApiService.deletePerson(id)
                     .then(function (response) {
-                        // alert(response.message || 'Pessoa excluída com sucesso!');
                         vm.addAlert('success', response.message || 'Pessoa excluída com sucesso!');
 
                         // Atualiza a lista local após a exclusão
@@ -116,9 +120,9 @@ angular.module('meuApp')
                             return person.id !== id;
                         });
                         vm.totalPeople = vm.people.length; // Atualiza o total
+                        vm.loadData();
                     })
                     .catch(function (error) {
-                        // alert('Erro ao excluir a pessoa.');
                         vm.addAlert('danger', 'Erro ao excluir a pessoa.');
                         console.error('Erro:', error);
                     });

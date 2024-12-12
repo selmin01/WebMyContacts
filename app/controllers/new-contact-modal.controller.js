@@ -1,5 +1,5 @@
 angular.module('meuApp')
-    .controller('NewContactModalController', ['$http', '$rootScope', function ($http, $rootScope) {
+    .controller('NewContactModalController', ['$scope', '$rootScope', 'ApiService', function ($scope, $rootScope, ApiService) {
         var vm = this;
 
         // // Dados do formulário
@@ -16,25 +16,27 @@ angular.module('meuApp')
             }
             console.log(vm.formData);
             // Simulando envio ao backend (exemplo com $http)
-            $http.post('http://localhost:8000/api/person', vm.formData, {headers: {
-                'Content-Type': 'application/json'
-            }})
+            ApiService.createPerson(vm.formData)
                 .then(function (response) {
-                    alert('Dados salvos com sucesso!');
-                    console.log('Resposta do servidor:', response.data);
-                    
-                    // Fechar o modal após o sucesso
-                    var modalElement = document.getElementById('exampleModal');
-                    var myModal = bootstrap.Modal.getInstance(modalElement);
-                    
-                    myModal.hide();
+                    alert('Pessoa criada com sucesso!');
+                    // vm.addAlert('success', response.message || 'Pessoa incluída com sucesso!');
+                    console.log('Pessoa criada:', response);
 
-                    // Chama a função `loadData` do MainController
-                    $rootScope.$broadcast('dataUpdated'); 
+                    var modalElement = document.getElementById('NewContactModal');
+                    if (modalElement) {
+                        var myModal = bootstrap.Modal.getInstance(modalElement);
+                        if (myModal) {
+                            myModal.hide(); // Fecha o modal
+                        } else {
+                            console.warn('Nenhuma instância do modal foi encontrada.');
+                        }
+                    }
+                    // Emite o evento para atualizar os dados no MainController
+                    $rootScope.$emit('dataCreateEvent');
                 })
                 .catch(function (error) {
-                    alert('Erro ao salvar os dados!');
-                    console.error('Erro:', error);
+                    alert(error.data.error || 'Erro ao criar pessoa.');
+                    console.error('Erro ao criar pessoa:', error);
                 });
         };
 
