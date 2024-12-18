@@ -2,19 +2,32 @@ angular.module('meuApp')
     .controller('NewContactModalController', ['$scope', '$rootScope', 'ApiService', function ($scope, $rootScope, ApiService) {
         var vm = this;
 
-        // // Dados do formulário
-        // vm.formData = {
-        //     name: '',
-        //     tipo: 'Física' // Valor padrão
-        // };
+        vm.formData = {
+            name: '',
+            type: ''
+        };
+        // Alerta
+        vm.alerts = [];
+        vm.addAlert = function (type, message) {
+            vm.alerts.push({ type: type, message: message });
+        };
+         vm.closeAlert = function (index) {
+            vm.alerts.splice(index, 1); // Remove o alerta pelo índice
+        };
 
         // Função para salvar os dados
         vm.saveData = function () {
+            // Verifica se os campos está vazio ou não selecionado
             if (vm.formData.name.trim() === '') {
-                alert('O campo Nome é obrigatório! <<< AQUI');
+                // alert('O campo Nome é obrigatório! <<< AQUI');
+                vm.addAlert('danger', 'O campo Nome é obrigatório!');
                 return;
             }
-            console.log(vm.formData);
+            if (!vm.formData.type) {
+                vm.addAlert('danger', 'O campo Tipo é obrigatório!');
+                return;
+            }
+
             // Simulando envio ao backend (exemplo com $http)
             ApiService.createPerson(vm.formData)
                 .then(function (response) {

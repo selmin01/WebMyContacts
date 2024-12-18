@@ -45,7 +45,7 @@
                         <span class="badge bg-primary ms-2">{{ item.type }}</span>
                     </td>
                     <td>
-                        <a href="#" ng-click="mainCtrl.openContacts(pessoa.id)" class="text-decoration-none">
+                        <a href="#" ng-click="mainCtrl.openEditPersonModal(item.id, 'contatos')" class="text-decoration-none">
                             {{ pessoa.contatos.length }} contatos
                         </a>
                     </td>
@@ -53,7 +53,7 @@
                         <button class="btn btn-sm btn-outline-primary" ng-click="mainCtrl.viewPerson(item.id)">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-warning" ng-click="mainCtrl.openEditPersonModal(item.id)">
+                        <button class="btn btn-sm btn-outline-warning" ng-click="mainCtrl.openEditPersonModal(item.id, 'dados')">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-danger" ng-click="mainCtrl.deletePerson(item.id)">

@@ -24,10 +24,11 @@ angular.module('meuApp')
         };
 
         // Função para abrir o modal de edição
-        vm.openEditPersonModal = function (id) {
+        vm.openEditPersonModal = function (id, activeTab) {
             console.log('Abrindo modal de edição para ID:', id);
             // Emite o evento no $rootScope
             $rootScope.$emit('editPersonEvent', id);
+            $rootScope.$emit('setActiveTab', activeTab);
 
             // Abre o modal
             var modalElement = document.getElementById('editModal');

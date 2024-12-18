@@ -1,4 +1,4 @@
-<div class="modal fade" id="editModal" tabindex="-2" aria-labelledby="editModalLabel" aria-hidden="true" data-person-id="">
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true" data-person-id="">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" ng-controller="EditContactModalController as modalCtrl">
             <div class="modal-header">
@@ -7,36 +7,148 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
-                <form>
-                    <!-- Tabs -->
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">Dados pessoais</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Contatos</a>
-                        </li>
-                    </ul>
-                    <!-- Conteúdo da aba ativa -->
-                    <div class="mt-3">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <label for="editName" class="form-label text-danger">Nome:</label>
-                                <input type="text" id="editName" class="form-control" placeholder="Digite o nome" ng-model="modalCtrl.editPersonData.name">
+                <!-- Tabs -->
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" ng-class="{active: modalCtrl.activeTab === 'dados'}" ng-click="modalCtrl.setActiveTab('dados')">
+                            Dados pessoais
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" ng-class="{active: modalCtrl.activeTab === 'contatos'}" ng-click="modalCtrl.setActiveTab('contatos')">
+                            Contatos
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Conteúdo das abas -->
+                <div class="mt-3">
+                    <!-- Aba Dados Pessoais -->
+                    <div ng-show="modalCtrl.activeTab === 'dados'">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label for="editName" class="form-label text-danger">Nome:</label>
+                                    <input type="text" id="editName" class="form-control" placeholder="Digite o nome" ng-model="modalCtrl.editPersonData.name">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="editType" class="form-label">Tipo:</label>
+                                    <select id="editType" class="form-select" ng-model="modalCtrl.editPersonData.type">
+                                        <option value="1">Física</option>
+                                        <option value="2">Jurídica</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label for="editType" class="form-label">Tipo:</label>
-                                <select id="editType" class="form-select" ng-model="modalCtrl.editPersonData.type">
-                                    <option value="1">Física</option>
-                                    <option value="2">Jurídica</option>
-                                </select>
+                        </form>
+                    </div>
+
+                    <!-- Aba Contatos -->
+                    <div ng-show="modalCtrl.activeTab === 'contatos'">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6>
+                                <i class="bi bi-person"></i>
+                                {{modalCtrl.editPersonData.id}} - {{modalCtrl.editPersonData.name}}
+                            </h6>
+                            <button class="btn btn-primary btn-sm" ng-click="modalCtrl.addNewContact()">
+                                <i class="bi bi-plus-circle"></i> Incluir
+                            </button>
+                        </div>
+
+                        <!-- Alert -->
+                        <div class="container mt-3">
+                            <div ng-repeat="alert in modalCtrl.alerts" class="alert alert-{{alert.type}} alert-dismissible fade show" role="alert">
+                                {{ alert.message }}
+                                <button type="button" class="btn-close" ng-click="modalCtrl.closeAlert($index)" aria-label="Close"></button>
                             </div>
                         </div>
+
+                        <!-- Formulário de Novo Contato -->
+                        <div ng-if="modalCtrl.newContact" class="mb-3">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-md-4">
+                                    <label for="contactName" class="form-label">Contato:</label>
+                                    <select id="contactName" class="form-select" ng-model="modalCtrl.newContact.name">
+                                        <option value="Residencial">Residencial</option>
+                                        <option value="Celular">Celular</option>
+                                        <option value="Empresarial">Empresarial</option>
+                                        <option value="Outro">Outro</option>
+                                    </select>
+                                </div>
+                                <div class="mb-1">
+                                    <label for="type" class="form-label">Tipo:</label>
+                                    <select id="type" class="form-select" ng-model="modalCtrl.newContact.type" required>
+                                        <option value="" disabled selected>Selecione o tipo</option>
+                                        <option value="1">Email</option>
+                                        <option value="2">Telefone</option>
+                                        <option value="3">WhatsApp</option>
+                                    </select>
+                                </div>
+                                <div class="mb-1">
+                                    <label for="value" class="form-label">Valor:</label>
+                                    <input 
+                                        type="text" 
+                                        id="value" 
+                                        class="form-control" 
+                                        ng-model="modalCtrl.newContact.value" 
+                                        ng-class="{'is-valid': modalCtrl.isContactValid, 'is-invalid': !modalCtrl.isContactValid}" 
+                                        ng-change="modalCtrl.validateNewContact()" 
+                                        placeholder="Digite o valor">
+                                    <div class="valid-feedback" ng-if="modalCtrl.isContactValid">
+                                        Contato válido!
+                                    </div>
+                                    <div class="invalid-feedback" ng-if="!modalCtrl.isContactValid">
+                                        Verifique os dados digitados no campo.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end mt-1 gap-2">
+                                                               
+                                <!-- Botão Salvar -->
+                                <!-- <button class="btn btn-outline-success" ng-click="modalCtrl.saveNewContact()" title="Salvar">
+                                    <i class="fa fa-check-circle fs-5"></i>
+                                </button> -->
+                                <!-- Botão Cancelar -->
+                                <button class="btn btn-outline-secondary" ng-click="modalCtrl.cancelNewContact()" title="Recolher">
+                                    <i class="fa fa-chevron-up fs-5"></i>
+                                </button> 
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Contatos -->
+                        <table class="table table-bordered mt-2" ng-if="modalCtrl.hasContacts">
+                            <thead>
+                                <tr>
+                                    <th>Contato</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="contact in modalCtrl.editPersonData.contacts">
+                                    <td>{{ contact.description }}</td>
+                                    <td>{{ modalCtrl.contactTypeMap[contact.type] }}</td>
+                                    <td>{{ contact.value }}</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-warning" ng-click="modalCtrl.editContact(contact)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" ng-click="modalCtrl.deleteContact(contact)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </form>
+                </div>
             </div>
-            <div class="modal-footer d-flex justify-content-between">
+
+            <div 
+            
+                class="modal-footer d-flex justify-content-between">
                 <button type="button" class="btn btn-secondary" ng-click="modalCtrl.cancelEdit()">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
