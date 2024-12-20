@@ -78,10 +78,8 @@ angular.module('meuApp')
                     // return response.data; // Retorna os dados da resposta
                     if (response.status === 200 || response.status === 201) {
                         return response.data; // Retorna os dados da resposta
-                    } else if (response.status === 3003) {
-                        throw new Error('Pessoa já cadastrada.'); // Mensagem específica para o status 3003
-                    } else {
-                        throw new Error(response.data.message || 'Erro ao criar a pessoa.<<'); // Mensagem padrão para outros erros
+                    }else {
+                        throw new Error(response.data.message || 'Erro ao criar a contato.');
                     }
                 })
                 .catch(function (error) {
@@ -98,6 +96,28 @@ angular.module('meuApp')
                 .catch(function (error) {
                     console.error('Erro ao buscar contatos:', error);
                     throw error; // Lança o erro para ser tratado no controller
+                });
+        };
+
+        this.getContactById = function (id) {
+            return $http.get(baseUrlContact + '/' + id).then(function (response) {
+                return response.data; // Retorna os dados da resposta
+            });
+        };
+
+        this.updateContact = function (id, data) {
+            return $http.put(baseUrlContact + '/' + id, data).then(function (response) {
+                // return response.data;
+                    // Verifique se a resposta possui status HTTP 200 ou 201
+                    if (response.status === 200 || response.status === 201) {
+                        return response.data; // Retorna os dados da resposta
+                    } else {
+                        throw new Error(response.data.message || 'Erro ao editar a contato.');
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Erro ao editar a contato:', error);
+                    throw error; // Rejeita a promise com o erro
                 });
         };
 

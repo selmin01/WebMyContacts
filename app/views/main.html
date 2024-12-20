@@ -15,9 +15,24 @@
     <!-- Barra de ações -->
     <div class="row mb-3">
         <div class="col-12 col-md-6">
-            <button class="btn btn-secondary w-100 mb-2" ng-click="mainCtrl.filter()">
-                <i class="fas fa-filter"></i> Aplicar Filtro
+            <button class="btn btn-secondary w-100 mb-2" ng-click="mainCtrl.toggleFilter()" ng-disabled="mainCtrl.isFiltering">
+                <i class="fas fa-filter"></i> {{ mainCtrl.isFilterActive ? 'Desativar Filtro' : 'Aplicar Filtro' }}
             </button>
+            <!-- Campo de Pesquisa -->
+            <div class="mb-3" ng-if="mainCtrl.isFilterActive">
+                <label for="searchInput" class="form-label">Filtrar Contatos</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="form-control" 
+                        placeholder="Digite para filtrar..." 
+                        ng-model="mainCtrl.searchQuery" 
+                        ng-keyup="mainCtrl.filterContacts()" />
+                </div>
+                <small class="text-muted">Digite o nome ou tipo de contato para filtrar os resultados.</small>
+            </div>
         </div>
         <div class="col-12 col-md-6">
             <button class="btn btn-danger w-100" ng-click="mainCtrl.openNewPersonModal()">
@@ -50,7 +65,7 @@
                         </a>
                     </td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-primary" ng-click="mainCtrl.viewPerson(item.id)">
+                        <button class="btn btn-sm btn-outline-primary" ng-click="mainCtrl.openEditPersonModal(item.id, 'contatos')">
                             <i class="fas fa-eye"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-warning" ng-click="mainCtrl.openEditPersonModal(item.id, 'dados')">
@@ -112,6 +127,4 @@
     <div ng-include="'app/modal/new-contact-modal.html'"></div>
     <div ng-include="'app/modal/edit-contact-modal.html'"></div>
 
-
-    <!-- <div ng-include="'app/modal/edit-contact-modal.html'"></div> -->
 </div>

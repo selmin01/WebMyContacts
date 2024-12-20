@@ -55,14 +55,16 @@ angular.module('meuApp')
             ApiService.getAllPersons()
                 .then(function(data) {
                     vm.people = data; // Atualiza os dados na view
+                    vm.filteredPeople = data; // Inicializa os dados filtrados
                     vm.totalPeople = data.length; // Total de registros para paginação
-                    vm.getPeoplePaginated();
+                    vm.getPeoplePaginated(); // Inicializa a paginação
                 })
                 .catch(function(error) {
                     vm.errorMessage = error.message || 'Erro ao carregar os dados.';
                     vm.addAlert('danger', 'Erro ao carregar os dados: ' + vm.errorMessage);
                 });
         };
+
         // Ouve o evento de atualização de dados
         $scope.$on('dataUpdated', function () {
             console.log('Evento recebido: dataUpdated');
@@ -82,12 +84,57 @@ angular.module('meuApp')
 
         // Chamada inicial para carregar os dados
         vm.loadData();
+
+        vm.filteredPeople = vm.peoplePaginated; // Lista inicial
+
+        // Estado do filtro
+        vm.isFilterActive = false;
+        vm.searchQuery = '';
+
+        // Alterna o filtro
+        vm.toggleFilter = function () {
+            vm.isFilterActive = !vm.isFilterActive;
+
+            if (!vm.isFilterActive) {
+                vm.searchQuery = ''; // Limpa o campo de pesquisa
+                vm.filteredPeople = vm.people; // Reseta os dados
+            }
+        };
+
+        // Filtra os contatos
+        vm.filterContacts = function () {
+            if (!vm.searchQuery.trim()) {
+                // Se o campo estiver vazio, reseta para todos os dados
+                vm.filteredPeople = vm.people;
+                vm.totalPeople = vm.filteredPeople.length;
+                vm.currentPage = 1; // Reseta para a primeira página
+                vm.getPeoplePaginated(); // Atualiza a paginação com todos os dados
+                return;
+            }
+        
+            // Filtra os contatos com base no texto digitado
+            vm.filteredPeople = vm.people.filter(function (person) {
+                return person.name.toLowerCase().includes(vm.searchQuery.toLowerCase()) ||
+                       person.type.toLowerCase().includes(vm.searchQuery.toLowerCase());
+            });
+        
+            // Atualiza os dados filtrados
+            vm.totalPeople = vm.filteredPeople.length;
+            vm.currentPage = 1; // Reseta para a primeira página
+            vm.getPeoplePaginated();
+        };
         
         // Função para obter as pessoas da página atual
+        // vm.getPeoplePaginated = function () {
+        //     var start = (vm.currentPage - 1) * vm.linesByPage; // Índice inicial
+        //     var end = start + vm.linesByPage; // Índice final
+        //     vm.peoplePaginated = vm.people.slice(start, end); // Atualiza apenas os registros da página atual
+        //     vm.updateRowRange(); // Atualiza o intervalo visível
+        // };
         vm.getPeoplePaginated = function () {
             var start = (vm.currentPage - 1) * vm.linesByPage; // Índice inicial
             var end = start + vm.linesByPage; // Índice final
-            vm.peoplePaginated = vm.people.slice(start, end); // Atualiza apenas os registros da página atual
+            vm.peoplePaginated = vm.filteredPeople.slice(start, end); // Atualiza apenas os registros filtrados
             vm.updateRowRange(); // Atualiza o intervalo visível
         };
         

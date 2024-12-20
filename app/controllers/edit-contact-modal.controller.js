@@ -2,18 +2,20 @@ angular.module('meuApp')
     .controller('EditContactModalController', ['$scope', '$rootScope', 'ApiService', function ($scope, $rootScope, ApiService) {
         var vm = this;
 
-        // Dados do formulário e controle de abas
         vm.editPersonData = {};
         vm.activeTab = 'dados'; // Valor padrão
         vm.newContact = null; // Armazena o contato em edição
         vm.hasContacts = false;
+        vm.isEditing = false;
 
         $rootScope.$on('setActiveTab', function (event, tab) {
             vm.activeTab = tab;
+            vm.isEditing = false;
             console.log('Aba ativa definida para:', vm.activeTab);
         });
         vm.setActiveTab = function (tab) {
             vm.activeTab = tab;
+            vm.isEditing = false;
             if (tab == 'contatos') {
                 // console.log('troquei', vm.editPersonData , tab);
                 ApiService.getPersonById(vm.editPersonData.id)
@@ -30,8 +32,24 @@ angular.module('meuApp')
         }
 
         vm.alerts = [];
-        vm.addAlert = function (type, message) {
-            vm.alerts.push({ type: type, message: message });
+        // vm.addAlert = function (type, message) {
+        //     vm.alerts.push({ type: type, message: message });
+        // };
+        // Função para adicionar um alerta com timer
+        vm.addAlert = function (type, message, timeout = 5000) {
+            const alert = { type, message };
+            vm.alerts.push(alert);
+            // Remove o alerta após o tempo especificado
+            setTimeout(() => {
+                const index = vm.alerts.indexOf(alert);
+                if (index !== -1) {
+                    vm.alerts.splice(index, 1);
+                    // Força uma atualização do AngularJS
+                    if (!vm.$$phase) {
+                        $scope.$apply();
+                    }
+                }
+            }, timeout);
         };
         vm.closeAlert = function (index) {
             vm.alerts.splice(index, 1);
@@ -40,6 +58,7 @@ angular.module('meuApp')
         // Escuta o evento emitido no $rootScope para carregar os dados da pessoa
         $rootScope.$on('editPersonEvent', function (event, id) {
             console.log('ID recebido no modal via evento:', id);
+            vm.isEditing = false;
 
             // Função para buscar os dados da pessoa
             ApiService.getPersonById(id)
@@ -61,9 +80,6 @@ angular.module('meuApp')
             3: 'WhatsApp'
         };
 
-        // ng-if="(modalCtrl.newContact && modalCtrl.activeTab === 'dados') || (!modalCtrl.newContact && modalCtrl.activeTab === 'dados')
-        //                 || (!modalCtrl.newContact && modalCtrl.activeTab === 'contatos')"
-
         vm.getContactsByPersonId = function (personId) {
             // Chama a API para buscar os contatos pelo personId
             if (personId) {
@@ -77,27 +93,19 @@ angular.module('meuApp')
                     vm.addNewContact();
                     vm.hasContacts = false;
                     console.error('Erro ao carregar contatos:', error);
-                    vm.addAlert('info', 'Nenhum contato encontrado para essa pessoa');
-                    // alert('Erro ao carregar os contatos. Tente novamente mais tarde. <<<');
+                    vm.addAlert('info', 'Nenhum contato encontrado para essa pessoa', 4000);
+                    // vm.cancelNewContact();
                 });
             }
-            // // Verifica se não há contatos e altera para a aba "Contatos"
-            // if (!vm.editPersonData.contacts || vm.editPersonData.contacts.length === 0) {
-            //     vm.editPersonData.contacts = [];
-            //     // console.warn(response.message || 'Nenhum contato encontrado.');
-            //     vm.activeTab = 'contatos'; // Altera para a aba "Contatos"
-            //     // vm.addNewContact(); // Prepara o formulário de inclusão de um novo contato
-            // }
         };
 
         // Função para salvar as alterações
         vm.saveEdit = function () {
-            console.log('Salvando:', vm.editPersonData);
             console.log('Salvando:', vm.activeTab);
 
             if (vm.newContact && vm.activeTab === 'contatos') {
                 if (vm.validateNewContact()) {
-                    console.log('Success: Contato válido:', vm.newContact);
+                    console.log('Success: Contato válido save');
                     vm.saveNewContact();
                     // Lógica para salvar o contato
                 } else {
@@ -105,6 +113,31 @@ angular.module('meuApp')
                     console.log('Erro: Contato inválido!');
                     vm.cancelNewContact();
                 }
+            } else if(vm.isEditing === true){
+                console.log('aquii <<', vm.editableContact.id);
+                ApiService.updateContact(vm.editableContact.id, vm.editableContact)
+                    .then(function (response) {
+                        alert('Contato atualizada com sucesso!');
+                        console.log('Contato atualizado:', response);
+    
+                        // Fecha o modal
+                        var modalElement = document.getElementById('editModal');
+                        if (modalElement) {
+                            var myModal = bootstrap.Modal.getInstance(modalElement);
+                            if (myModal) {
+                                myModal.hide();
+                            } else {
+                                console.warn('Nenhuma instância do modal foi encontrada.');
+                            }
+                        }
+    
+                        // Emite o evento para atualizar os dados no MainController
+                        $rootScope.$emit('dataUpdatedEvent');
+                    })
+                    .catch(function (error) {
+                        console.error('Erro ao salvar os dados editados:', error);
+                        alert('Erro ao salvar os dados editados.');
+                    });
             }else{
                 ApiService.updatePerson(vm.editPersonData.id, vm.editPersonData)
                     .then(function (response) {
@@ -154,40 +187,58 @@ angular.module('meuApp')
         };
 
         vm.isContactValid = null; // Inicializa como nulo para evitar cor até o primeiro input
-        vm.validateNewContact = function() {
-            const { type, value } = vm.newContact;
-
+        vm.validateNewContact = function () {
+            let type, value;
+        
+            if (vm.newContact && vm.newContact.type !== null && vm.newContact.value !== null) {
+                ({ type, value } = vm.newContact);
+            } else if (vm.editableContact && vm.editableContact.type !== null && vm.editableContact.value !== null) {
+                ({ type, value } = vm.editableContact);
+            } else {
+                console.warn('Nenhum contato válido para validação.');
+                vm.isContactValid = false;
+                return false;
+            }
+        
             // Validação para campo obrigatório de tipo
-            if (!type || type.trim() === '') {
+            if (!type || type.toString().trim() === '') {
                 vm.isContactValid = false;
+                console.warn('Tipo inválido ou vazio.');
                 return false;
             }
+        
             // Validação para campo obrigatório de valor
-            if (!value || value.trim() === '') {
+            if (!value || value.toString().trim() === '') {
                 vm.isContactValid = false;
+                console.warn('Valor inválido ou vazio.');
                 return false;
             }
+        
             // Validação para email
             if (type === '1') {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(value.trim())) {
+                if (!emailRegex.test(value.toString().trim())) {
                     vm.isContactValid = false;
+                    console.warn('E-mail inválido.');
                     return false;
                 }
             }
+        
             // Validação para telefone no padrão brasileiro
             if (type === '2' || type === '3') {
                 const brazilianPhoneRegex = /^(?:\(?\d{2}\)?\s?)?(?:9\d{4}|\d{4})\-?\d{4}$/;
-
-                if (!brazilianPhoneRegex.test(value.trim())) {
+                if (!brazilianPhoneRegex.test(value.toString().trim())) {
                     vm.isContactValid = false;
+                    console.warn('Telefone/WhatsApp inválido.');
                     return false;
                 }
             }
+        
             // Caso passe todas as validações
             vm.isContactValid = true;
             return true;
         };
+        
 
         vm.saveNewContact = function () {
             // Formata o contato no formato esperado pela API
@@ -207,13 +258,14 @@ angular.module('meuApp')
                 })
                 .catch(function (error) {
                     console.error('Erro ao salvar o contato na API:', error);
-                    alert(error.data.error || 'Erro ao criar pessoa.');
-                    vm.addAlert('danger', 'Erro ao salvar o contato. Por favor, tente novamente.'); // Mensagem genérica
+                    alert(error.data.error || 'Erro ao criar contato.');
+                    vm.addAlert('danger', `Erro ao salvar o contato. ${error.data.error || 'Desconhecido'}`);
                 });
         };
 
         vm.cancelNewContact = function () {
             vm.newContact = null; // Cancela o novo contato
+            vm.isEditing = false; // Cancela Edição
         };
 
         vm.deleteContact = function (contact) {
@@ -245,4 +297,21 @@ angular.module('meuApp')
             console.log('Editando contato:', contact);
             alert('A funcionalidade de edição de contatos está em desenvolvimento.');
         };
+        vm.editContactTest = function (contact) {
+            // Define um booleano para controlar o estado de edição
+            vm.isEditing = true;
+        
+            // Chama a API para buscar os dados do contato
+            ApiService.getContactById(contact.id)
+                .then(function (response) {
+                    // Preenche os campos com os dados retornados
+                    vm.editableContact = response.data;
+                    console.log('Dados do contato carregados para edição:', vm.editableContact);
+                })
+                .catch(function (error) {
+                    console.error('Erro ao carregar os dados do contato:', error);
+                    vm.addAlert('danger', 'Erro ao carregar os dados do contato. Por favor, tente novamente.');
+                });
+        };
+        
     }]);
